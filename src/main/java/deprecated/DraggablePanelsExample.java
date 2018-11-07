@@ -81,7 +81,7 @@ public final class DraggablePanelsExample extends Application {
 		
 		final Scene scene = new Scene(sceneRoot, 400, 300);
 		stage.setScene(scene);
-		stage.setTitle("Draggable Panels Example");
+		stage.setTitle("Draggable Panels TableConfigurer");
 		stage.show();
 	}
 	

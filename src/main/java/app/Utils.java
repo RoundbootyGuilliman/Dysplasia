@@ -3,15 +3,16 @@ package app;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 import java.nio.charset.Charset;
 import java.util.*;
@@ -219,7 +220,7 @@ class Utils {
 				/ toPoint(point1).distance(toPoint(point3)) * 100) + "%");
 	}
 	
-	static void updateCEA(Line cea, Circle point, Circle basepoint1, Circle basepoint2, Circle anglePoint) {
+	static void updateCEA(Line cea, Circle point, Circle basepoint1, Circle basepoint2) {
 		Line perpTemp = createPerp(basepoint1, basepoint2, point);
 		
 		Circle perpPoint = new Circle(perpTemp.getEndX(), perpTemp.getEndY(), 8);
@@ -231,12 +232,15 @@ class Utils {
 	}
 	
 	static void calculateAcetabular(Circle pointL2, Circle pointL3, Circle pointR2, Circle pointR3) {
+		
 		Stream.of(pointL2, pointL3, pointR3).forEach(point ->
 				point.addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseEvent ->
 						calcLeftAngle(pointL2, pointL3, pointR3)));
+		
 		Stream.of(pointL3, pointR2, pointR3).forEach(point ->
 				point.addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseEvent ->
 						calcRightAngle(pointR2, pointL3, pointR3)));
+		
 		calcLeftAngle(pointL2, pointL3, pointR3);
 		calcRightAngle(pointR2, pointL3, pointR3);
 	}
@@ -249,9 +253,14 @@ class Utils {
 		double initialCenterY;
 		boolean moved;
 		
+		Stage primaryStage;
+		
 		BorderPane rootRoot;
 		BorderPane root;
+		Pane imgRoot;
+		HBox background;
 		VBox uiPane;
+		TilePane buttonsPane;
 		ImageView xray;
 		
 		int k = 100;
@@ -259,32 +268,17 @@ class Utils {
 		List<Circle> innerPoints = new ArrayList<>();
 		
 		SortedMap<String, Circle> points = new TreeMap<>();
-//			put("lp1", null);
-//			put("lp2", null);
-//			put("lp3", null);
-//			put("lp4", null);
-//			put("rp1", null);
-//			put("rp2", null);
-//			put("rp3", null);
-//			put("rp4", null);
-		;
+
 		List<String> pointsRequired = new ArrayList<>();
 		List<Node> frontNodes = new ArrayList<>();
 		Text textL;
 		Text textR;
-		Text textC;
+		Label textC;
+		
+		VBox table;
 		
 		String currentPoint = "lp1";
-		boolean pointsDrawn = false;
-
-//		Circle L1;
-//		Circle L2;
-//		Circle L3;
-//		Circle L4;
-//		Circle R1;
-//		Circle R2;
-//		Circle R3;
-//		Circle R4;
+		SimpleBooleanProperty pointsDrawn = new SimpleBooleanProperty(false);
 	}
 	
 	static final class Shapes {

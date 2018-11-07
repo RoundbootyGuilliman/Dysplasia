@@ -91,19 +91,19 @@ public class Actions {
 		calcRightAngle(pointR2, rightPerpPoint, pointR1, 180);
 		
 		c.root.widthProperty().addListener(((observable, oldValue, newValue) -> {
-			updateCEA(s.L1Perp, pointL1, pointL1, pointR1, pointL2);
-			updateCEA(s.R1Perp, pointR1, pointL1, pointR1, pointR2);
+			updateCEA(s.L1Perp, pointL1, pointL1, pointR1);
+			updateCEA(s.R1Perp, pointR1, pointL1, pointR1);
 		}));
 		
 		c.root.heightProperty().addListener(((observable, oldValue, newValue) -> {
-			updateCEA(s.L1Perp, pointL1, pointL1, pointR1, pointL2);
-			updateCEA(s.R1Perp, pointR1, pointL1, pointR1, pointR2);
+			updateCEA(s.L1Perp, pointL1, pointL1, pointR1);
+			updateCEA(s.R1Perp, pointR1, pointL1, pointR1);
 		}));
 		
 		Stream.of(pointL1, pointR1).forEach(point ->
 				point.addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseEvent -> {
-					updateCEA(s.L1Perp, pointL1, pointL1, pointR1, pointL2);
-					updateCEA(s.R1Perp, pointR1, pointL1, pointR1, pointR2);
+					updateCEA(s.L1Perp, pointL1, pointL1, pointR1);
+					updateCEA(s.R1Perp, pointR1, pointL1, pointR1);
 				}));
 		
 		Stream.of(pointL2, pointL1, pointR1).forEach(point ->
@@ -248,7 +248,8 @@ public class Actions {
 	private static void setTextRICI(Text text, Line horizontal1, Line horizontal2, Circle point2) {
 		text.setText(String.format(Locale.ROOT, "%.1f",
 				(horizontal2.getEndX() - point2.getCenterX()) / (horizontal1.getEndX() - horizontal1.getStartX()) * 100) + "%");
-		Stream.of(point2.centerXProperty(), point2.centerYProperty(),
+		Stream.of(
+				point2.centerXProperty(), point2.centerYProperty(),
 				horizontal1.startXProperty(), horizontal1.startYProperty(),
 				horizontal1.endXProperty(), horizontal1.endYProperty())
 				.forEach(prop ->
