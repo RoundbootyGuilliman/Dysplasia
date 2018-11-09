@@ -70,6 +70,7 @@ public class Runner extends Application {
 			image.setPreserveRatio(true);
 			image.fitHeightProperty().bind(background.prefHeightProperty());
 			image.fitWidthProperty().bind(background.prefWidthProperty());
+			imgRoot.getChildren().clear();
 			imgRoot.getChildren().addAll(image);
 			image.setOnMouseEntered(event -> System.out.println("ENTERED IMG"));
 			imgRoot.setOnMouseEntered(event -> System.out.println("ENTERED IMGROOT"));
