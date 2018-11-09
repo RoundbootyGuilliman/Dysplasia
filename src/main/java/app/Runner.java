@@ -27,6 +27,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -41,7 +42,12 @@ public class Runner extends Application {
 	
 	final static Context c = new Context();
 	final static Shapes s = new Shapes();
+	private Background back = new Background(new BackgroundFill(Color.rgb(23, 33, 43), null, null));
+	private Background over = new Background(new BackgroundFill(Color.rgb(35, 46, 60), null, null));
+	private Background pressed = new Background(new BackgroundFill(Color.rgb(43, 82, 120), null, null));
+	private Background textField = new Background(new BackgroundFill(Color.rgb(32, 43, 54), null, null));
 	private StringProperty mode = new SimpleStringProperty(this, "mode", "AI");
+	
 	
 	public static void main(String args[]) {
 		launch(args);
@@ -72,7 +78,7 @@ public class Runner extends Application {
 			double ratio = img.getWidth() / img.getHeight();
 			background.widthProperty().addListener((obs, oldValue, newValue) -> {
 				if (!oldValue.equals(newValue)) {
-
+					
 					double oldWidth;
 					double oldHeight;
 					if (oldValue.doubleValue() > background.getHeight() * ratio) {
@@ -84,7 +90,7 @@ public class Runner extends Application {
 						double scale = img.getWidth() / oldValue.doubleValue();
 						oldHeight = img.getHeight() / scale;
 					}
-
+					
 					double newWidth;
 					double newHeight;
 					if (newValue.doubleValue() > background.getHeight() * ratio) {
@@ -96,7 +102,7 @@ public class Runner extends Application {
 						double scale = img.getWidth() / newValue.doubleValue();
 						newHeight = img.getHeight() / scale;
 					}
-
+					
 					c.points.forEach((key, value) -> {
 						double widthRatio = oldWidth / value.getCenterX();
 						double widthAddition = ((newWidth - oldWidth) / widthRatio);
@@ -107,10 +113,10 @@ public class Runner extends Application {
 					});
 				}
 			});
-
+			
 			background.heightProperty().addListener((obs, oldValue, newValue) -> {
 				if (!oldValue.equals(newValue)) {
-
+					
 					double oldWidth;
 					double oldHeight;
 					if (background.getWidth() > oldValue.doubleValue() * ratio) {
@@ -122,7 +128,7 @@ public class Runner extends Application {
 						double scale = img.getWidth() / background.getWidth();
 						oldHeight = img.getHeight() / scale;
 					}
-
+					
 					double newWidth;
 					double newHeight;
 					if (background.getWidth() > newValue.doubleValue() * ratio) {
@@ -134,7 +140,7 @@ public class Runner extends Application {
 						double scale = img.getWidth() / background.getWidth();
 						newHeight = img.getHeight() / scale;
 					}
-
+					
 					c.points.forEach((key, value) -> {
 						double widthRatio = oldWidth / value.getCenterX();
 						double widthAddition = ((newWidth - oldWidth) / widthRatio);
@@ -199,20 +205,24 @@ public class Runner extends Application {
 		FileChooser fileChooser = new FileChooser();
 		configureFileChooser(fileChooser);
 		
-		Button openButton = new Button("Open a Picture...");
+		Button openButton = new Button("  Загрузить снимок...");
 		
-		Button clearButton = new Button("Clear");
+		Button clearButton = new Button("  Очистить");
 		
-		Button saveButton = new Button("Save");
+		Button saveButton = new Button("  Сохранить");
 		
-		Button statButton = new Button("Stats");
+		Button statButton = new Button("  Статистика");
 		
 		List<Button> buttons = Stream.of("AI", "ADR", "CEA", "AA", "RI", "CI").map(Button::new).collect(Collectors.toList());
 		
 		Button ai = buttons.get(0);
 		buttons.forEach(button -> button.setOnAction(event -> {
-			buttons.forEach(buttonInner -> buttonInner.setDisable(false));
+			buttons.forEach(innerButton -> {
+				innerButton.setDisable(false);
+				innerButton.setStyle("");
+			});
 			button.setDisable(true);
+			button.setStyle("-fx-opacity: 1.0; -fx-background-color: #2b5278;");
 			mode.set(button.getText());
 			c.pointsRequired.clear();
 			switch (button.getText()) {
@@ -240,23 +250,25 @@ public class Runner extends Application {
 					c.pointsRequired.addAll(Arrays.asList("lp1", "lp2", "lp4", "rp1", "rp2", "rp4"));
 					break;
 			}
+			clearButton.setDisable(false);
 			clearButton.fire();
 			update();
 		}));
-		Label label = new Label("Label with text");
-		c.textC = label;
 		
-		Label patientName = new Label("Имя пациента");
+		
 		TextField nameField = new TextField();
-		patientName.setFont(Font.font(null, FontWeight.BOLD, 20));
-		patientName.setTextFill(Color.WHITE);
+		nameField.setBackground(new Background(new BackgroundFill(Color.rgb(36, 47, 61), null, null)));
+		nameField.setPromptText("Имя пациента...");
+		nameField.setStyle("-fx-text-fill: white; -fx-prompt-text-fill: #6d7883");
 		
-		Label patientLastName = new Label("Фамилия пациента");
+		
 		TextField lastNameField = new TextField();
-		patientLastName.setFont(Font.font(null, FontWeight.BOLD, 20));
-		patientLastName.setTextFill(Color.WHITE);
+		lastNameField.setBackground(new Background(new BackgroundFill(Color.rgb(36, 47, 61), null, null)));
+		lastNameField.setPromptText("Фамилия пациента...");
+		lastNameField.setStyle("-fx-text-fill: white; -fx-prompt-text-fill: #6d7883");
 		
-		List<Node> nodes = Arrays.asList(openButton, clearButton, saveButton, statButton, label, patientName, nameField, patientLastName, lastNameField);
+		
+		List<Node> nodes = Arrays.asList(openButton, clearButton, saveButton, statButton, new Label(""), nameField, new Label(""), lastNameField);
 		GridPane inputGridPane = new GridPane();
 		
 		int index = 0;
@@ -272,52 +284,43 @@ public class Runner extends Application {
 		inputTilePane.setMaxHeight(40);
 		inputTilePane.setMinHeight(40);
 		
-		buttons.forEach(button -> {
-			button.setShape(new Rectangle(50, 40, Color.DARKBLUE));
-			button.setPrefWidth(100);
-			button.setPrefHeight(40);
-			//button.setStyle("-fx-background-color: #457ecd; -fx-text-fill: #ffffff;");
-			button.setFont(Font.font(null, FontWeight.BOLD, 20));
-			button.setTextFill(Color.WHITE);
-			
-//			button.setBackground(new Background(new BackgroundFill(Color.rgb(36, 37, 42), null, null)));
-//			button.addEventFilter(MouseEvent.MOUSE_ENTERED, event ->
-//					button.setBackground(new Background(new BackgroundFill(Color.rgb(1, 50, 67), null, null))));
-//			button.addEventFilter(MouseEvent.MOUSE_EXITED, event ->
-//					button.setBackground(new Background(new BackgroundFill(Color.rgb(36, 37, 42), null, null))));
-			
-			
-			button.setBackground(new Background(new BackgroundFill(Color.rgb(1, 50, 67), null, null)));
-			button.addEventFilter(MouseEvent.MOUSE_ENTERED, event ->
-					button.setBackground(new Background(new BackgroundFill(Color.rgb(36, 37, 42), null, null))));
-			button.addEventFilter(MouseEvent.MOUSE_EXITED, event ->
-					button.setBackground(new Background(new BackgroundFill(Color.rgb(1, 50, 67), null, null))));
-			
-		});
+		List<Button> tempButtons = new ArrayList<>(buttons);
+		tempButtons.addAll(Arrays.asList(openButton, clearButton, saveButton, statButton));
 		
-		Stream.of(openButton, clearButton, saveButton, statButton).forEach(button -> {
+		tempButtons.forEach(button -> {
 			button.setShape(new Rectangle(50, 40, Color.DARKBLUE));
 			button.setPrefWidth(200);
 			button.setPrefHeight(40);
-			//button.setStyle("-fx-background-color: #457ecd; -fx-text-fill: #ffffff;");
-			button.setFont(Font.font(null, FontWeight.BOLD, 20));
+			
 			button.setTextFill(Color.WHITE);
 			
-//			button.setBackground(new Background(new BackgroundFill(Color.rgb(36, 37, 42), null, null)));
-//			button.addEventFilter(MouseEvent.MOUSE_ENTERED, event ->
-//					button.setBackground(new Background(new BackgroundFill(Color.rgb(1, 50, 67), null, null))));
-//			button.addEventFilter(MouseEvent.MOUSE_EXITED, event ->
-//					button.setBackground(new Background(new BackgroundFill(Color.rgb(36, 37, 42), null, null))));
-			
-			button.setBackground(new Background(new BackgroundFill(Color.rgb(1, 50, 67), null, null)));
-			button.addEventFilter(MouseEvent.MOUSE_ENTERED, event ->
-					button.setBackground(new Background(new BackgroundFill(Color.rgb(36, 37, 42), null, null))));
-			button.addEventFilter(MouseEvent.MOUSE_EXITED, event ->
-					button.setBackground(new Background(new BackgroundFill(Color.rgb(1, 50, 67), null, null))));
+			button.setBackground(back);
+			button.addEventFilter(MouseEvent.MOUSE_MOVED, event -> {
+				button.setBackground(over);
+				button.getScene().setCursor(Cursor.HAND);
+			});
+			button.addEventFilter(MouseEvent.MOUSE_EXITED, event -> {
+				button.setBackground(back);
+				button.getScene().setCursor(Cursor.DEFAULT);
+			});
+			button.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+				button.setBackground(pressed);
+			});
+		});
+		
+		Stream.of(openButton, clearButton, saveButton, statButton).forEach(button -> {
+			button.setFont(Font.font(16));
+			button.setAlignment(Pos.CENTER_LEFT);
+			button.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> button.setBackground(back));
+		});
+		
+		buttons.forEach(button -> {
+			button.setPrefWidth(100);
+			button.setFont(Font.font(20));
+			button.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> button.setBackground(pressed));
 		});
 		
 		inputTilePane.getChildren().addAll(buttons);
-		
 		
 		
 		Screen screen = Screen.getPrimary();
@@ -344,12 +347,12 @@ public class Runner extends Application {
 		
 		
 		c.buttonsPane = inputTilePane;
-		
+
 //		uiPane.setBackground(new Background(new BackgroundFill(Color.rgb(36, 37, 42), null, null)));
 //		inputTilePane.setBackground(new Background(new BackgroundFill(Color.rgb(36, 37, 42), null, null)));
 		
-		uiPane.setBackground(new Background(new BackgroundFill(Color.rgb(1, 50, 67), null, null)));
-		inputTilePane.setBackground(new Background(new BackgroundFill(Color.rgb(1, 50, 67), null, null)));
+		uiPane.setBackground(new Background(new BackgroundFill(Color.rgb(23, 33, 43), null, null)));
+		inputTilePane.setBackground(new Background(new BackgroundFill(Color.rgb(23, 33, 43), null, null)));
 		
 		HBox background = new HBox();
 		c.background = background;
@@ -379,6 +382,13 @@ public class Runner extends Application {
 		background.setOnMouseEntered(event -> System.out.println("ENTERED BACKGROUND"));
 		contextRoot.setOnMouseEntered(event -> System.out.println("ENTERED contextRoot"));
 		
+		c.textC = new Text(300, 100, "");
+		c.textC.xProperty().bind(c.root.layoutXProperty().add(c.root.prefWidthProperty()).subtract(c.root.prefWidthProperty().divide(4.5)).divide(2));
+		c.textC.yProperty().bind(c.root.prefHeightProperty().divide(6));
+		c.textC.setFont(Font.font(20));
+		c.textC.setStroke(Color.YELLOW);
+		
+		
 		c.textL = new Text(90, 100, "");
 		c.textL.xProperty().bind(c.root.layoutXProperty().add(c.root.prefWidthProperty().divide(10)));
 		c.textL.yProperty().bind(c.root.prefHeightProperty().divide(6));
@@ -392,8 +402,7 @@ public class Runner extends Application {
 		c.textR.setFont(Font.font(20));
 		c.textR.setStroke(Color.YELLOW);
 		
-		c.textC.setFont(Font.font(null, FontWeight.BOLD, 15));
-		c.textC.setTextFill(Color.WHITE);
+		
 		
 		Stream.of(c.textL, c.textR).forEach(text ->
 				text.textProperty().addListener(((observable, oldValue, newValue) -> {
@@ -403,8 +412,7 @@ public class Runner extends Application {
 				})));
 		
 		uiPane.getChildren().add(inputGridPane);
-		contextRoot.getChildren().addAll(c.textL, c.textR);
-		
+		contextRoot.getChildren().addAll(c.textL, c.textR, c.textC);
 		
 		
 		openButton.setOnAction(e -> {
@@ -415,11 +423,15 @@ public class Runner extends Application {
 		clearButton.setOnAction(e -> {
 			
 			c.root = configureContextRoot(clearButton);
-			c.root.getChildren().addAll(c.textL, c.textR);
+			c.root.getChildren().addAll(c.textL, c.textR, c.textC);
 			c.points.clear();
 			clearButton.setDisable(true);
 			c.pointsDrawn.set(false);
+			System.out.println("CURRENT" + c.currentPoint);
+			System.out.println("REQUIRED" + c.pointsRequired.get(0));
 			c.currentPoint = c.pointsRequired.get(0);
+			System.out.println("CURRENT" + c.currentPoint);
+			System.out.println("REQUIRED" + c.pointsRequired.get(0));
 			c.textL.setText("");
 			c.textR.setText("");
 			Stream.of(s.getClass().getDeclaredFields()).forEach(field -> {
@@ -435,9 +447,9 @@ public class Runner extends Application {
 		saveButton.setOnAction(e -> {
 			
 			Props.set(nameField.getText() + "SPC" + lastNameField.getText() + ";" + mode.get() + "L",
-					c.textL.getText().replaceAll("[^.0123456789]",""));
+					c.textL.getText().replaceAll("[^.0123456789]", ""));
 			Props.set(nameField.getText() + "SPC" + lastNameField.getText() + ";" + mode.get() + "R",
-					c.textR.getText().replaceAll("[^.0123456789]",""));
+					c.textR.getText().replaceAll("[^.0123456789]", ""));
 			update();
 		});
 		saveButton.disableProperty().bind(c.pointsDrawn.not());
@@ -473,12 +485,12 @@ public class Runner extends Application {
 		c.rootRoot.setTop(c.buttonsPane);
 		c.background.getChildren().clear();
 		c.background.getChildren().addAll(new Pane(c.imgRoot, c.root));
-
-
+		
+		
 		System.out.println(c.root.getChildren().size());
 		//c.root.getChildren().forEach(Node::toFront);
 		c.innerPoints.forEach(Node::toFront);
-
+		
 		c.points.forEach((s, circle) -> {
 			if (circle != null) {
 				circle.toFront();

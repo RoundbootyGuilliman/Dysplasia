@@ -273,7 +273,7 @@ class Utils {
 		List<Node> frontNodes = new ArrayList<>();
 		Text textL;
 		Text textR;
-		Label textC;
+		Text textC;
 		
 		VBox table;
 		
