@@ -1,17 +1,18 @@
 package app;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.event.Event;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -44,8 +45,10 @@ public class Runner extends Application {
 	private Background over = new Background(new BackgroundFill(Color.rgb(35, 46, 60), null, null));
 	private Background pressed = new Background(new BackgroundFill(Color.rgb(43, 82, 120), null, null));
 	private Background textField = new Background(new BackgroundFill(Color.rgb(36, 47, 61), null, null));
-	private StringProperty mode = new SimpleStringProperty(this, "mode", "AI");
-	
+	private StringProperty mode = new SimpleStringProperty(this, "mode", "АИ");
+	private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
+	private SimpleBooleanProperty hasText = new SimpleBooleanProperty(false);
+	private SimpleBooleanProperty statOn = new SimpleBooleanProperty(false);
 	
 	public static void main(String args[]) {
 		launch(args);
@@ -68,8 +71,6 @@ public class Runner extends Application {
 			image.setPreserveRatio(true);
 			image.fitHeightProperty().bind(background.prefHeightProperty());
 			image.fitWidthProperty().bind(background.prefWidthProperty());
-			c.root.setPrefHeight(image.getLayoutBounds().getHeight());
-			c.root.setPrefWidth(image.getLayoutBounds().getWidth());
 			c.xray = image;
 			image.layoutBoundsProperty().addListener((obs, oldValue, newValue) -> {
 				c.root.setPrefHeight(newValue.getHeight());
@@ -133,7 +134,7 @@ public class Runner extends Application {
 		Button saveButton = new Button("  Сохранить");
 		Button statButton = new Button("  Статистика");
 		
-		List<Button> buttons = Stream.of("AI", "ADR", "CEA", "AA", "RI", "CI").map(Button::new).collect(Collectors.toList());
+		List<Button> buttons = Stream.of("АИ", "ОАШВ", "ЦУ", "АУ", "ИМР", "ИК").map(Button::new).collect(Collectors.toList());
 		
 		Button ai = buttons.get(0);
 		buttons.forEach(button -> button.setOnAction(event -> {
@@ -146,27 +147,27 @@ public class Runner extends Application {
 			mode.set(button.getText());
 			c.pointsRequired.clear();
 			switch (button.getText()) {
-				case "AI":
+				case "АИ":
 					c.pointsRequired.addAll(Arrays.asList("lp2", "lp3", "rp2", "rp3"));
 					break;
 				
-				case "ADR":
+				case "ОАШВ":
 					c.pointsRequired.addAll(Arrays.asList("lp2", "lp3", "lp4", "rp2", "rp3", "rp4"));
 					break;
 				
-				case "CEA":
+				case "ЦУ":
 					c.pointsRequired.addAll(Arrays.asList("lp1", "lp2", "rp1", "rp2"));
 					break;
 				
-				case "AA":
+				case "АУ":
 					c.pointsRequired.addAll(Arrays.asList("lp2", "lp4", "rp2", "rp4"));
 					break;
 				
-				case "RI":
+				case "ИМР":
 					c.pointsRequired.addAll(Arrays.asList("lp1", "lp2", "rp1", "rp2"));
 					break;
 				
-				case "CI":
+				case "ИК":
 					c.pointsRequired.addAll(Arrays.asList("lp1", "lp2", "lp4", "rp1", "rp2", "rp4"));
 					break;
 			}
@@ -180,7 +181,8 @@ public class Runner extends Application {
 		nameField.setBackground(textField);
 		nameField.setPromptText("Имя пациента...");
 		nameField.setStyle("-fx-text-fill: white; -fx-prompt-text-fill: #6d7883");
-		
+		nameField.setMaxWidth(180);
+		nameField.setMinWidth(180);
 		
 		TextField lastNameField = new TextField();
 		lastNameField.setBackground(textField);
@@ -188,7 +190,53 @@ public class Runner extends Application {
 		lastNameField.setStyle("-fx-text-fill: white; -fx-prompt-text-fill: #6d7883");
 		
 		
-		List<Node> nodes = Arrays.asList(openButton, clearButton, saveButton, statButton, new Label(""), nameField, new Label(""), lastNameField);
+		TextField ageField = new TextField();
+		ageField.setBackground(textField);
+		ageField.setPromptText("Возраст...");
+		ageField.setStyle("-fx-text-fill: white; -fx-prompt-text-fill: #6d7883");
+		ageField.setMaxWidth(85);
+		ageField.setMinWidth(85);
+		
+		Arrays.asList(nameField, lastNameField)
+				.forEach(textField ->
+						textField.textProperty().addListener((observable, oldValue, newValue) -> {
+							if (!newValue.matches("\\p{L}")) {
+								textField.setText(newValue.replaceAll("[^\\p{L}]", ""));
+							}
+						}));
+		ageField.textProperty().addListener((observable, oldValue, newValue) -> {
+			if (!newValue.matches("\\d^.")) {
+				ageField.setText(newValue.replaceAll("[^\\d^.]", ""));
+			}
+		});
+		ChoiceBox<String> gender = new ChoiceBox<>(FXCollections.observableArrayList("Муж.", "Жен."));
+		gender.setValue("Муж.");
+		gender.setBackground(textField);
+		gender.setMaxWidth(85);
+		gender.setMinWidth(85);
+		
+		GridPane box = new GridPane();
+		GridPane.setConstraints(ageField, 0, 0);
+		GridPane.setConstraints(gender, 1, 0);
+		box.setMaxWidth(180);
+		box.setHgap(10);
+		box.getChildren().addAll(ageField, gender);
+		
+		List<Node> fields = Arrays.asList(nameField, lastNameField, box);
+		TilePane fieldsPane = new TilePane();
+		fieldsPane.setOrientation(Orientation.VERTICAL);
+		fieldsPane.setPrefRows(3);
+		fieldsPane.setAlignment(Pos.CENTER);
+		fieldsPane.setMaxWidth(200);
+		fieldsPane.setMinWidth(200);
+		fieldsPane.setVgap(10);
+		fieldsPane.getChildren().addAll(fields);
+		
+		Pane boilerplate = new Pane();
+		boilerplate.setMinHeight(40);
+		boilerplate.setMaxHeight(40);
+		
+		List<Node> nodes = Arrays.asList(boilerplate, openButton, clearButton, saveButton, statButton, new Label(""), new Label());
 		GridPane inputGridPane = new GridPane();
 		
 		int index = 0;
@@ -204,8 +252,37 @@ public class Runner extends Application {
 		inputTilePane.setMaxHeight(40);
 		inputTilePane.setMinHeight(40);
 		
+		statButton.setShape(new Rectangle(50, 40, Color.DARKBLUE));
+		statButton.setPrefWidth(200);
+		statButton.setPrefHeight(40);
+		
+		statButton.setTextFill(Color.WHITE);
+		
+		statButton.setBackground(back);
+		statButton.addEventFilter(MouseEvent.MOUSE_MOVED, event -> {
+			if (!statOn.get()){
+				statButton.setBackground(over);
+				statButton.getScene().setCursor(Cursor.HAND);
+			}
+		});
+		statButton.addEventFilter(MouseEvent.MOUSE_EXITED, event -> {
+			if (!statOn.get()){
+				statButton.setBackground(back);
+				statButton.getScene().setCursor(Cursor.DEFAULT);
+			}
+			
+		});
+		statButton.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+			if (!statOn.get()){
+				statButton.setBackground(pressed);
+			}
+		});
+		
+		statButton.setFont(Font.font(16));
+		statButton.setAlignment(Pos.CENTER_LEFT);
+		
 		List<Button> tempButtons = new ArrayList<>(buttons);
-		tempButtons.addAll(Arrays.asList(openButton, clearButton, saveButton, statButton));
+		tempButtons.addAll(Arrays.asList(openButton, clearButton, saveButton));
 		
 		tempButtons.forEach(button -> {
 			button.setShape(new Rectangle(50, 40, Color.DARKBLUE));
@@ -228,13 +305,20 @@ public class Runner extends Application {
 			});
 		});
 		
-		Stream.of(openButton, clearButton, saveButton, statButton).forEach(button -> {
+		Stream.of(openButton, clearButton, saveButton).forEach(button -> {
 			button.setFont(Font.font(16));
 			button.setAlignment(Pos.CENTER_LEFT);
 			button.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> button.setBackground(back));
 		});
 		
 		buttons.forEach(button -> {
+			button.setTooltip(new Tooltip(button.getText()
+					.replace("АИ", "Ацетабулярный индекс")
+					.replace("ОАШВ", "Отношение ацетабулярной ширины к высоте")
+					.replace("ЦУ", "Центральный угол")
+					.replace("АУ", "Ацетабулярный угол")
+					.replace("ИМР", "Индекс миграции Реймера")
+					.replace("ИК", "Индекс конгруэнтности")));
 			button.setPrefWidth(100);
 			button.setFont(Font.font(20));
 			button.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> button.setBackground(pressed));
@@ -249,6 +333,7 @@ public class Runner extends Application {
 		c.rootRoot = root;
 		
 		Scene scene = new Scene(root);
+		scene.getStylesheets().add(getClass().getClassLoader().getResource("style.css").toExternalForm());
 		
 		primaryStage.setTitle("Runner nodes");
 		primaryStage.setMinHeight(600);
@@ -284,9 +369,23 @@ public class Runner extends Application {
 		background.setAlignment(Pos.CENTER);
 		background.setFillHeight(false);
 		
-		root.setRight(uiPane);
-		root.setCenter(background);
-		root.setTop(inputTilePane);
+		BorderPane hintPane = new BorderPane();
+		hintPane.setMaxHeight(30);
+		hintPane.setMinHeight(30);
+		hintPane.setBackground(back);
+		hintPane.setStyle("-fx-border-width: 0 2 0 2; -fx-border-color: black;");
+		hintPane.setPadding(new Insets(0, 40, 0, 40));
+		c.hintPane = hintPane;
+		
+		BorderPane anotherRoot = new BorderPane();
+		c.anotherRoot = anotherRoot;
+		
+		
+		root.setLeft(uiPane);
+		root.setCenter(anotherRoot);
+		anotherRoot.setCenter(background);
+		anotherRoot.setTop(inputTilePane);
+		anotherRoot.setBottom(hintPane);
 		
 		
 		BorderPane contextRoot = configureContextRoot(clearButton);
@@ -295,41 +394,30 @@ public class Runner extends Application {
 		c.centerRoot = new Pane(c.xray, contextRoot);
 		c.background.getChildren().addAll(c.centerRoot);
 		
-		
-		background.setOnMouseEntered(event -> System.out.println("ENTERED BACKGROUND"));
-		contextRoot.setOnMouseEntered(event -> System.out.println("ENTERED contextRoot"));
-		
 		c.textC = new Text(300, 100, "");
-		c.textC.xProperty().bind(c.root.layoutXProperty().add(c.root.prefWidthProperty()).subtract(c.root.prefWidthProperty().divide(4.5)).divide(2));
-		c.textC.yProperty().bind(c.root.prefHeightProperty().divide(6));
 		c.textC.setFont(Font.font(20));
-		c.textC.setStroke(Color.YELLOW);
+		c.textC.setFill(Color.WHITE);
 		
 		
 		c.textL = new Text(90, 100, "");
-		c.textL.xProperty().bind(c.root.layoutXProperty().add(c.root.prefWidthProperty().divide(10)));
-		c.textL.yProperty().bind(c.root.prefHeightProperty().divide(6));
 		c.textL.setFont(Font.font(20));
-		c.textL.setStroke(Color.YELLOW);
+		c.textL.setFill(Color.YELLOW);
 		
 		
 		c.textR = new Text(600, 100, "");
-		c.textR.xProperty().bind(c.root.layoutXProperty().add(c.root.prefWidthProperty()).subtract(c.root.prefWidthProperty().divide(4.5)));
-		c.textR.yProperty().bind(c.root.prefHeightProperty().divide(6));
 		c.textR.setFont(Font.font(20));
-		c.textR.setStroke(Color.YELLOW);
+		c.textR.setFill(Color.YELLOW);
 		
 		
 		Stream.of(c.textL, c.textR).forEach(text ->
 				text.textProperty().addListener(((observable, oldValue, newValue) -> {
+					if (!changed.get()) changed.set(true);
 					if (!newValue.contains(mode.get()) && !newValue.equals("")) {
 						text.setText(mode.getValue() + " = " + newValue);
 					}
 				})));
 		
-		uiPane.getChildren().add(inputGridPane);
-		contextRoot.getChildren().addAll(c.textL, c.textR, c.textC);
-		
+		uiPane.getChildren().addAll(inputGridPane, fieldsPane);
 		
 		openButton.setOnAction(e -> {
 			File file = fileChooser.showOpenDialog(primaryStage);
@@ -339,7 +427,6 @@ public class Runner extends Application {
 		clearButton.setOnAction(e -> {
 			
 			c.root = configureContextRoot(clearButton);
-			c.root.getChildren().addAll(c.textL, c.textR, c.textC);
 			c.points.clear();
 			clearButton.setDisable(true);
 			c.pointsDrawn.set(false);
@@ -358,20 +445,31 @@ public class Runner extends Application {
 			update();
 		});
 		
+		hasText.bind(nameField.textProperty().isNotEmpty().and(lastNameField.textProperty().isNotEmpty()).and(ageField.textProperty().isNotEmpty()));
+		
 		saveButton.setOnAction(e -> {
+			changed.set(false);
+			String key = nameField.getText() + "SPC" + lastNameField.getText() + ";" + ageField.getText() + ";"
+					+ gender.getValue().replace("Муж.", "M").replace("Жен.", "F")
+					+ ";" + mode.get();
 			
-			Props.set(nameField.getText() + "SPC" + lastNameField.getText() + ";" + mode.get() + "L",
-					c.textL.getText().replaceAll("[^.0123456789]", ""));
-			Props.set(nameField.getText() + "SPC" + lastNameField.getText() + ";" + mode.get() + "R",
-					c.textR.getText().replaceAll("[^.0123456789]", ""));
+			Props.set(key + "L", c.textL.getText().replaceAll("[^.0123456789]", ""));
+			Props.set(key + "R", c.textR.getText().replaceAll("[^.0123456789]", ""));
 			update();
 		});
-		saveButton.disableProperty().bind(c.pointsDrawn.not());
+		saveButton.disableProperty().bind((c.pointsDrawn.not()).or(changed.not()).or(hasText.not()));
+		
 		
 		statButton.setOnAction(e -> {
+			if (!statOn.get()) {
+				c.table = TableConfigurer.configureTable();
+				c.rootRoot.setCenter(c.table);
+				statOn.set(true);
+			} else {
+				statOn.set(false);
+				update();
+			}
 			
-			c.table = TableConfigurer.configureTable();
-			c.rootRoot.setCenter(c.table);
 		});
 		
 		File initialFile = new File(System.getProperty("user.home") + "/Desktop/5230e6e4807b8f13fce73b2b7d542f.jpg");
@@ -387,18 +485,32 @@ public class Runner extends Application {
 		if (c.xray == null) {
 			c.textC.setText("Upload an X-Ray");
 		} else if (!c.pointsDrawn.get()) {
-			c.textC.setText("Отметьте " + c.currentPoint.replace("rp", "правую точку ").replace("lp", "левую точку "));
+			c.textC.setText("Отметьте " + c.currentPoint
+					.replace("lp1", "середину головки левого сустава")
+					.replace("rp1", "середину головки правого сустава")
+					.replace("lp2", "край левой вертлужной впадины")
+					.replace("rp2", "край правой вертлужной впадины")
+					.replace("lp3", "левую точку Хильгенрейнера")
+					.replace("rp3", "правую точку Хильгенрейнера")
+					.replace("lp4", "нижний край левой слезы Келера")
+					.replace("rp4", "нижний край правой слезы Келера"));
 		} else {
 			c.textC.setText("");
 		}
+		
+		c.hintPane.setCenter(c.textC);
+		c.hintPane.setLeft(c.textL);
+		c.hintPane.setRight(c.textR);
 		c.rootRoot.getChildren().clear();
-		c.rootRoot.setCenter(c.background);
-		c.rootRoot.setRight(c.uiPane);
-		c.rootRoot.setTop(c.buttonsPane);
+		c.rootRoot.setCenter(c.anotherRoot);
+		c.rootRoot.setLeft(c.uiPane);
+		c.anotherRoot.setCenter(c.background);
+		c.anotherRoot.setTop(c.buttonsPane);
 		c.background.getChildren().clear();
 		c.centerRoot = new Pane(c.xray, c.root);
 		c.background.getChildren().addAll(c.centerRoot);
-		
+		c.root.setPrefHeight(c.xray.getLayoutBounds().getHeight());
+		c.root.setPrefWidth(c.xray.getLayoutBounds().getWidth());
 		c.innerPoints.forEach(Node::toFront);
 		
 		c.points.forEach((s, circle) -> {
@@ -411,32 +523,32 @@ public class Runner extends Application {
 	private void calculate() {
 		switch (mode.get()) {
 			
-			case "ADR":
+			case "ОАШВ":
 				calculateAdr();
 				
 				break;
 			
-			case "AI":
+			case "АИ":
 				calculateAi();
 				
 				break;
 			
-			case "CEA":
+			case "ЦУ":
 				calculateCea();
 				
 				break;
 			
-			case "AA":
+			case "АУ":
 				calculateAa();
 				
 				break;
 			
-			case "RI":
+			case "ИМР":
 				calculateRi();
 				
 				break;
 			
-			case "CI":
+			case "ИК":
 				calculateCi();
 				
 				break;

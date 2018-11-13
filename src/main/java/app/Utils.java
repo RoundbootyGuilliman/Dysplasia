@@ -256,8 +256,9 @@ class Utils {
 		Stage primaryStage;
 		
 		BorderPane rootRoot;
+		BorderPane anotherRoot;
+		BorderPane hintPane;
 		BorderPane root;
-		Pane imgRoot;
 		Pane centerRoot;
 		HBox background;
 		VBox uiPane;

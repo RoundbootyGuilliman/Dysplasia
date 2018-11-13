@@ -10,10 +10,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,22 +25,28 @@ public class TableConfigurer {
 		
 		constructPatients();
 		
-		final Label label = new Label("Address Book");
-		label.setFont(new Font("Arial", 20));
 		
 		table.setEditable(true);
 		
-		TableColumn<Patient, String> firstNameCol = new TableColumn<>("First Name");
+		TableColumn<Patient, String> firstNameCol = new TableColumn<>("Имя");
 		firstNameCol.setMinWidth(100);
 		firstNameCol.setCellValueFactory(new PropertyValueFactory<>("firstName"));
 		
 		
-		TableColumn<Patient, String> lastNameCol = new TableColumn<>("Last Name");
+		TableColumn<Patient, String> lastNameCol = new TableColumn<>("Фамилия");
 		lastNameCol.setMinWidth(100);
 		lastNameCol.setCellValueFactory(new PropertyValueFactory<>("lastName"));
 		
+		TableColumn<Patient, String> ageCol = new TableColumn<>("Возраст");
+		ageCol.setMinWidth(40);
+		ageCol.setCellValueFactory(new PropertyValueFactory<>("age"));
 		
-		List<TableColumn<Patient, String>> columns = Stream.of("AI", "ADR", "CEA", "AA", "RI", "CI")
+		TableColumn<Patient, String> genderCol = new TableColumn<>("Пол");
+		genderCol.setMinWidth(40);
+		genderCol.setCellValueFactory(new PropertyValueFactory<>("gender"));
+		
+		
+		List<TableColumn<Patient, String>> columns = Stream.of("АИ", "ОАШВ", "ЦУ", "АУ", "ИМР", "ИК")
 				.map(TableConfigurer::columnFactory)
 				.collect(Collectors.toList());
 		
@@ -71,15 +74,17 @@ public class TableConfigurer {
 		});
 		
 		table.setItems(data);
-		table.getColumns().add(firstNameCol);
-		table.getColumns().add(lastNameCol);
+		table.getColumns().addAll(Arrays.asList(firstNameCol, lastNameCol, ageCol, genderCol));
 		columns.forEach(tableColumn -> table.getColumns().add(tableColumn));
 		table.getColumns().add(deleteCol);
 		
 		final VBox vbox = new VBox();
 		vbox.setSpacing(5);
 		vbox.setPadding(new Insets(10, 0, 0, 10));
-		vbox.getChildren().addAll(label, table);
+		vbox.getChildren().addAll(table);
+		
+		table.prefHeightProperty().bind(vbox.heightProperty());
+		table.prefWidthProperty().bind(vbox.widthProperty());
 		
 		return vbox;
 	}
@@ -106,49 +111,51 @@ public class TableConfigurer {
 				Patient newPatient = new Patient();
 				newPatient.setFirstName(firstName);
 				newPatient.setLastName(lastName);
+				newPatient.setAge(key[1]);
+				newPatient.setGender(key[2].replace("M", "Муж.").replace("F", "Жен."));
 				patients.put(firstName + lastName, newPatient);
 				patient = newPatient;
 			} else {
 				patient = patients.get(firstName + lastName);
 			}
 			
-			String mode = key[1];
+			String mode = key[3];
 			
 			switch (mode) {
-				case "AIL":
+				case "АИL":
 					patient.setAiL(value + degress);
 					break;
-				case "AIR":
+				case "АИR":
 					patient.setAiR(value + degress);
 					break;
-				case "ADRL":
+				case "ОАШВL":
 					patient.setAdrL(value + percentage);
 					break;
-				case "ADRR":
+				case "ОАШВR":
 					patient.setAdrR(value + percentage);
 					break;
-				case "CEAL":
+				case "ЦУL":
 					patient.setCeaL(value + degress);
 					break;
-				case "CEAR":
+				case "ЦУR":
 					patient.setCeaR(value + degress);
 					break;
-				case "AAL":
+				case "АУL":
 					patient.setAaL(value + degress);
 					break;
-				case "AAR":
+				case "АУR":
 					patient.setAaR(value + degress);
 					break;
-				case "RIL":
+				case "ИМРL":
 					patient.setRiL(value + percentage);
 					break;
-				case "RIR":
+				case "ИМРR":
 					patient.setRiR(value + percentage);
 					break;
-				case "CIL":
+				case "ИКL":
 					patient.setCiL(value + percentage);
 					break;
-				case "CIR":
+				case "ИКR":
 					patient.setCiR(value + percentage);
 					break;
 			}
@@ -157,15 +164,22 @@ public class TableConfigurer {
 	}
 	
 	private static TableColumn<Patient, String> columnFactory(String index) {
+		TableColumn<Patient, String> centerCol = new TableColumn<>(index);
+		index = index
+				.replace("АИ", "ai")
+				.replace("ОАШВ", "adr")
+				.replace("ЦУ", "cea")
+				.replace("АУ", "aa")
+				.replace("ИМР", "ri")
+				.replace("ИК", "ci");
 		TableColumn<Patient, String> lCol = new TableColumn<>("L");
-		lCol.setCellValueFactory(new PropertyValueFactory<>(index.toLowerCase() + "L"));
+		lCol.setCellValueFactory(new PropertyValueFactory<>(index + "L"));
 		lCol.setMinWidth(35);
 		
 		TableColumn<Patient, String> rCol = new TableColumn<>("R");
-		rCol.setCellValueFactory(new PropertyValueFactory<>(index.toLowerCase() + "R"));
+		rCol.setCellValueFactory(new PropertyValueFactory<>(index + "R"));
 		rCol.setMinWidth(35);
 		
-		TableColumn<Patient, String> centerCol = new TableColumn<>(index);
 		centerCol.getColumns().addAll(lCol, rCol);
 		centerCol.setMinWidth(70);
 		
@@ -176,6 +190,8 @@ public class TableConfigurer {
 		
 		private SimpleStringProperty firstName = new SimpleStringProperty();
 		private SimpleStringProperty lastName = new SimpleStringProperty();
+		private SimpleStringProperty age = new SimpleStringProperty();
+		private SimpleStringProperty gender = new SimpleStringProperty();
 		private SimpleStringProperty aiL = new SimpleStringProperty();
 		private SimpleStringProperty aiR = new SimpleStringProperty();
 		private SimpleStringProperty adrL = new SimpleStringProperty();
@@ -198,6 +214,30 @@ public class TableConfigurer {
 		
 		public void setFirstName(String firstName) {
 			this.firstName.set(firstName);
+		}
+		
+		public String getAge() {
+			return age.get();
+		}
+		
+		public SimpleStringProperty ageProperty() {
+			return age;
+		}
+		
+		public void setAge(String age) {
+			this.age.set(age);
+		}
+		
+		public String getGender() {
+			return gender.get();
+		}
+		
+		public SimpleStringProperty genderProperty() {
+			return gender;
+		}
+		
+		public void setGender(String gender) {
+			this.gender.set(gender);
 		}
 		
 		public SimpleStringProperty firstNameProperty() {
