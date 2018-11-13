@@ -258,6 +258,7 @@ class Utils {
 		BorderPane rootRoot;
 		BorderPane root;
 		Pane imgRoot;
+		Pane centerRoot;
 		HBox background;
 		VBox uiPane;
 		TilePane buttonsPane;
