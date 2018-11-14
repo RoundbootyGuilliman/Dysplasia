@@ -92,12 +92,12 @@ public class Actions {
 		calcLeftAngle(pointL2, pointL1, leftPerpPoint, 180);
 		calcRightAngle(pointR2, rightPerpPoint, pointR1, 180);
 		
-		c.root.widthProperty().addListener(((observable, oldValue, newValue) -> {
+		c.ctx.widthProperty().addListener(((observable, oldValue, newValue) -> {
 			updateCEA(s.L1Perp, pointL1, pointL1, pointR1);
 			updateCEA(s.R1Perp, pointR1, pointL1, pointR1);
 		}));
 		
-		c.root.heightProperty().addListener(((observable, oldValue, newValue) -> {
+		c.ctx.heightProperty().addListener(((observable, oldValue, newValue) -> {
 			updateCEA(s.L1Perp, pointL1, pointL1, pointR1);
 			updateCEA(s.R1Perp, pointR1, pointL1, pointR1);
 		}));
@@ -204,7 +204,7 @@ public class Actions {
 		createStartButt(perpendicular2);
 		createPointButt(perpendicular2, point2);
 		
-		c.root.getChildren().addAll(perpendicular1, perpendicular2);
+		c.ctx.getChildren().addAll(perpendicular1, perpendicular2);
 		
 		setTextRICI(text, perpendicular1, perpendicular2, point2);
 	}
@@ -236,7 +236,7 @@ public class Actions {
 		
 		Line horizontal2 = createRegularLine(subL, subR);
 		
-		c.root.getChildren().addAll(vertical4, horizontal1, horizontal2);
+		c.ctx.getChildren().addAll(vertical4, horizontal1, horizontal2);
 		
 		createStartButt(horizontal1);
 		createEndButt(horizontal1);
@@ -292,6 +292,6 @@ public class Actions {
 						}
 				));
 		
-		c.root.getChildren().addAll(l1l5, l5l6, r1r5, r5r6);
+		c.ctx.getChildren().addAll(l1l5, l5l6, r1r5, r5r6);
 	}
 }

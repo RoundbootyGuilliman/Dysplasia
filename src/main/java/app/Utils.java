@@ -3,6 +3,7 @@ package app;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -148,7 +149,7 @@ class Utils {
 		dlp2.setStroke(Color.YELLOW);
 		dlp1.setStrokeWidth(2);
 		dlp2.setStrokeWidth(2);
-		c.root.getChildren().addAll(dlp1, dlp2);
+		c.ctx.getChildren().addAll(dlp1, dlp2);
 		c.frontNodes.addAll(Arrays.asList(dlp1, dlp2));
 	}
 	
@@ -172,7 +173,7 @@ class Utils {
 		dlp4.setStroke(Color.YELLOW);
 		dlp3.setStrokeWidth(2);
 		dlp4.setStrokeWidth(2);
-		c.root.getChildren().addAll(dlp3, dlp4);
+		c.ctx.getChildren().addAll(dlp3, dlp4);
 		c.frontNodes.addAll(Arrays.asList(dlp3, dlp4));
 	}
 	
@@ -197,7 +198,7 @@ class Utils {
 		pp2.setStroke(Color.YELLOW);
 		pp1.setStrokeWidth(2);
 		pp2.setStrokeWidth(2);
-		c.root.getChildren().addAll(pp1, pp2);
+		c.ctx.getChildren().addAll(pp1, pp2);
 		c.frontNodes.addAll(Arrays.asList(pp1, pp2));
 	}
 	
@@ -265,10 +266,12 @@ class Utils {
 		
 		Stage primaryStage;
 		
-		BorderPane rootRoot;
+		Button clearButton;
+		
+		BorderPane root;
 		BorderPane anotherRoot;
 		BorderPane hintPane;
-		BorderPane root;
+		BorderPane ctx;
 		Pane centerRoot;
 		HBox background;
 		VBox uiPane;
