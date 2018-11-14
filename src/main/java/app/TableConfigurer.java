@@ -4,11 +4,12 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,10 +51,9 @@ public class TableConfigurer {
 				.collect(Collectors.toList());
 		
 		TableColumn<Patient, Patient> deleteCol = new TableColumn<>();
-		deleteCol.setMinWidth(40);
 		deleteCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
 		deleteCol.setCellFactory(param -> new TableCell<Patient, Patient>() {
-			private final Button deleteButton = new Button("Delete");
+			private final Button deleteButton = new Button("Удалить");
 			
 			@Override
 			protected void updateItem(Patient patient, boolean empty) {
@@ -63,7 +63,6 @@ public class TableConfigurer {
 					setGraphic(null);
 					return;
 				}
-				
 				setGraphic(deleteButton);
 				deleteButton.setOnAction(event -> {
 					data.remove(patient);
@@ -78,11 +77,8 @@ public class TableConfigurer {
 		table.getColumns().add(deleteCol);
 		
 		final VBox vbox = new VBox();
-		vbox.setSpacing(5);
-		vbox.setPadding(new Insets(10, 0, 0, 10));
 		vbox.getChildren().addAll(table);
 		
-		table.prefWidthProperty().bind(vbox.widthProperty());
 		table.prefHeightProperty().bind(vbox.heightProperty());
 		
 		return vbox;
@@ -231,24 +227,24 @@ public class TableConfigurer {
 			return age.get();
 		}
 		
-		public SimpleStringProperty ageProperty() {
-			return age;
-		}
-		
 		public void setAge(String age) {
 			this.age.set(age);
+		}
+		
+		public SimpleStringProperty ageProperty() {
+			return age;
 		}
 		
 		public String getGender() {
 			return gender.get();
 		}
 		
-		public SimpleStringProperty genderProperty() {
-			return gender;
-		}
-		
 		public void setGender(String gender) {
 			this.gender.set(gender);
+		}
+		
+		public SimpleStringProperty genderProperty() {
+			return gender;
 		}
 		
 		public SimpleStringProperty firstNameProperty() {
@@ -415,24 +411,24 @@ public class TableConfigurer {
 			return sduL.get();
 		}
 		
-		public SimpleStringProperty sduLProperty() {
-			return sduL;
-		}
-		
 		public void setSduL(String sduL) {
 			this.sduL.set(sduL);
+		}
+		
+		public SimpleStringProperty sduLProperty() {
+			return sduL;
 		}
 		
 		public String getSduR() {
 			return sduR.get();
 		}
 		
-		public SimpleStringProperty sduRProperty() {
-			return sduR;
-		}
-		
 		public void setSduR(String sduR) {
 			this.sduR.set(sduR);
+		}
+		
+		public SimpleStringProperty sduRProperty() {
+			return sduR;
 		}
 	}
 }

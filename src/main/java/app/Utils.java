@@ -50,6 +50,7 @@ class Utils {
 		
 		circle.setFill(Color.TRANSPARENT);
 		circle.setStroke(Color.RED);
+		circle.setStrokeWidth(2);
 		return circle;
 	}
 	
@@ -73,6 +74,7 @@ class Utils {
 		
 		femoralCircle.setFill(Color.TRANSPARENT);
 		femoralCircle.setStroke(Color.RED);
+		femoralCircle.setStrokeWidth(2);
 		femoralCircle.centerXProperty().bind(point.centerXProperty());
 		femoralCircle.centerYProperty().bind(point.centerYProperty());
 		SimpleBooleanProperty clicked = new SimpleBooleanProperty();
@@ -101,6 +103,7 @@ class Utils {
 		line.endYProperty().bind(point2.centerYProperty());
 		
 		line.setStroke(Color.YELLOWGREEN);
+		line.setStrokeWidth(2);
 		line.toBack();
 		return line;
 	}
@@ -118,6 +121,7 @@ class Utils {
 		});
 		
 		line.setStroke(Color.YELLOWGREEN);
+		line.setStrokeWidth(2);
 		line.toBack();
 		return line;
 	}
@@ -142,6 +146,8 @@ class Utils {
 		
 		dlp1.setStroke(Color.YELLOW);
 		dlp2.setStroke(Color.YELLOW);
+		dlp1.setStrokeWidth(2);
+		dlp2.setStrokeWidth(2);
 		c.root.getChildren().addAll(dlp1, dlp2);
 		c.frontNodes.addAll(Arrays.asList(dlp1, dlp2));
 	}
@@ -164,6 +170,8 @@ class Utils {
 		
 		dlp3.setStroke(Color.YELLOW);
 		dlp4.setStroke(Color.YELLOW);
+		dlp3.setStrokeWidth(2);
+		dlp4.setStrokeWidth(2);
 		c.root.getChildren().addAll(dlp3, dlp4);
 		c.frontNodes.addAll(Arrays.asList(dlp3, dlp4));
 	}
@@ -187,6 +195,8 @@ class Utils {
 		
 		pp1.setStroke(Color.YELLOW);
 		pp2.setStroke(Color.YELLOW);
+		pp1.setStrokeWidth(2);
+		pp2.setStrokeWidth(2);
 		c.root.getChildren().addAll(pp1, pp2);
 		c.frontNodes.addAll(Arrays.asList(pp1, pp2));
 	}

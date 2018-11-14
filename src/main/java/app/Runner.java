@@ -362,18 +362,6 @@ public class Runner extends Application {
 		uiPane.setBackground(back);
 		inputTilePane.setBackground(back);
 		
-		HBox background = new HBox();
-		c.background = background;
-		background.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
-		
-		background.prefWidthProperty().bind(scene.widthProperty().subtract(uiPane.getMaxWidth()));
-		background.prefHeightProperty().bind(scene.heightProperty().subtract(inputTilePane.getMaxHeight()));
-		background.maxWidthProperty().bind(scene.widthProperty().subtract(uiPane.getMaxWidth()));
-		background.maxHeightProperty().bind(scene.heightProperty().subtract(inputTilePane.getMaxHeight()));
-		
-		background.setAlignment(Pos.CENTER);
-		background.setFillHeight(false);
-		
 		BorderPane hintPane = new BorderPane();
 		hintPane.setMaxHeight(30);
 		hintPane.setMinHeight(30);
@@ -381,6 +369,20 @@ public class Runner extends Application {
 		hintPane.setStyle("-fx-border-width: 0 2 0 2; -fx-border-color: black;");
 		hintPane.setPadding(new Insets(0, 40, 0, 40));
 		c.hintPane = hintPane;
+		
+		HBox background = new HBox();
+		c.background = background;
+		background.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
+		
+		background.prefWidthProperty().bind(scene.widthProperty().subtract(uiPane.getMaxWidth()));
+		background.prefHeightProperty().bind(scene.heightProperty().subtract(inputTilePane.getMaxHeight()).subtract(hintPane.getMaxHeight()));
+		background.maxWidthProperty().bind(scene.widthProperty().subtract(uiPane.getMaxWidth()));
+		background.maxHeightProperty().bind(scene.heightProperty().subtract(inputTilePane.getMaxHeight()).subtract(hintPane.getMaxHeight()));
+		
+		background.setAlignment(Pos.CENTER);
+		background.setFillHeight(false);
+		
+		
 		
 		BorderPane anotherRoot = new BorderPane();
 		c.anotherRoot = anotherRoot;
@@ -531,6 +533,7 @@ public class Runner extends Application {
 		c.background.getChildren().addAll(c.centerRoot);
 		c.root.setPrefHeight(c.xray.getLayoutBounds().getHeight());
 		c.root.setPrefWidth(c.xray.getLayoutBounds().getWidth());
+		c.frontNodes.forEach(Node::toFront);
 		c.innerPoints.forEach(Node::toFront);
 		
 		c.points.forEach((s, circle) -> {
@@ -618,10 +621,12 @@ public class Runner extends Application {
 		
 		point.addEventFilter(MouseEvent.MOUSE_RELEASED, Event::consume);
 		
-		Circle innerPoint = new Circle(point.getCenterX(), point.getCenterY(), 3);
+		Circle innerPoint = new Circle(point.getCenterX(), point.getCenterY(), 4);
 		
 		point.setFill(Color.TRANSPARENT);
-		innerPoint.setFill(Color.YELLOW);
+		innerPoint.setFill(Color.WHITE);
+		innerPoint.setStroke(Color.ORANGERED);
+		innerPoint.setStrokeWidth(2);
 		innerPoint.centerXProperty().bind(point.centerXProperty());
 		innerPoint.centerYProperty().bind(point.centerYProperty());
 		

@@ -48,6 +48,8 @@ public class Actions {
 		s.R2R4.setStroke(Color.YELLOW);
 		s.adwrL.setStroke(Color.YELLOW);
 		s.adwrR.setStroke(Color.YELLOW);
+		s.adwrL.setStrokeWidth(2);
+		s.adwrR.setStrokeWidth(2);
 	}
 	
 	static void calculateAi() {
