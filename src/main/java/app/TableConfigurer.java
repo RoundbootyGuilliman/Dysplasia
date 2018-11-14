@@ -25,7 +25,6 @@ public class TableConfigurer {
 		
 		constructPatients();
 		
-		
 		table.setEditable(true);
 		
 		TableColumn<Patient, String> firstNameCol = new TableColumn<>("Имя");
@@ -46,7 +45,7 @@ public class TableConfigurer {
 		genderCol.setCellValueFactory(new PropertyValueFactory<>("gender"));
 		
 		
-		List<TableColumn<Patient, String>> columns = Stream.of("АИ", "ОАШВ", "ЦУ", "АУ", "ИМР", "ИК")
+		List<TableColumn<Patient, String>> columns = Stream.of("АИ", "ОАШВ", "ЦУ", "АУ", "ИМР", "ИК", "ШДУ")
 				.map(TableConfigurer::columnFactory)
 				.collect(Collectors.toList());
 		
@@ -83,8 +82,8 @@ public class TableConfigurer {
 		vbox.setPadding(new Insets(10, 0, 0, 10));
 		vbox.getChildren().addAll(table);
 		
-		table.prefHeightProperty().bind(vbox.heightProperty());
 		table.prefWidthProperty().bind(vbox.widthProperty());
+		table.prefHeightProperty().bind(vbox.heightProperty());
 		
 		return vbox;
 	}
@@ -122,41 +121,47 @@ public class TableConfigurer {
 			String mode = key[3];
 			
 			switch (mode) {
-				case "АИL":
+				case "AIL":
 					patient.setAiL(value + degress);
 					break;
-				case "АИR":
+				case "AIR":
 					patient.setAiR(value + degress);
 					break;
-				case "ОАШВL":
+				case "ADRL":
 					patient.setAdrL(value + percentage);
 					break;
-				case "ОАШВR":
+				case "ADRR":
 					patient.setAdrR(value + percentage);
 					break;
-				case "ЦУL":
+				case "CEAL":
 					patient.setCeaL(value + degress);
 					break;
-				case "ЦУR":
+				case "CEAR":
 					patient.setCeaR(value + degress);
 					break;
-				case "АУL":
+				case "AAL":
 					patient.setAaL(value + degress);
 					break;
-				case "АУR":
+				case "AAR":
 					patient.setAaR(value + degress);
 					break;
-				case "ИМРL":
+				case "RIL":
 					patient.setRiL(value + percentage);
 					break;
-				case "ИМРR":
+				case "RIR":
 					patient.setRiR(value + percentage);
 					break;
-				case "ИКL":
+				case "CIL":
 					patient.setCiL(value + percentage);
 					break;
-				case "ИКR":
+				case "CIR":
 					patient.setCiR(value + percentage);
+					break;
+				case "SDUL":
+					patient.setSduL(value + percentage);
+					break;
+				case "SDUR":
+					patient.setSduR(value + percentage);
 					break;
 			}
 		});
@@ -165,20 +170,24 @@ public class TableConfigurer {
 	
 	private static TableColumn<Patient, String> columnFactory(String index) {
 		TableColumn<Patient, String> centerCol = new TableColumn<>(index);
+		
 		index = index
-				.replace("АИ", "ai")
-				.replace("ОАШВ", "adr")
-				.replace("ЦУ", "cea")
-				.replace("АУ", "aa")
-				.replace("ИМР", "ri")
-				.replace("ИК", "ci");
+				.replace("АИ", "AI")
+				.replace("ОАШВ", "ADR")
+				.replace("ЦУ", "CEA")
+				.replace("АУ", "AA")
+				.replace("ИМР", "RI")
+				.replace("ИК", "CI")
+				.replace("ШДУ", "SDU");
+		
 		TableColumn<Patient, String> lCol = new TableColumn<>("L");
-		lCol.setCellValueFactory(new PropertyValueFactory<>(index + "L"));
+		lCol.setCellValueFactory(new PropertyValueFactory<>(index.toLowerCase() + "L"));
 		lCol.setMinWidth(35);
 		
 		TableColumn<Patient, String> rCol = new TableColumn<>("R");
-		rCol.setCellValueFactory(new PropertyValueFactory<>(index + "R"));
+		rCol.setCellValueFactory(new PropertyValueFactory<>(index.toLowerCase() + "R"));
 		rCol.setMinWidth(35);
+		
 		
 		centerCol.getColumns().addAll(lCol, rCol);
 		centerCol.setMinWidth(70);
@@ -204,6 +213,8 @@ public class TableConfigurer {
 		private SimpleStringProperty riR = new SimpleStringProperty();
 		private SimpleStringProperty ciL = new SimpleStringProperty();
 		private SimpleStringProperty ciR = new SimpleStringProperty();
+		private SimpleStringProperty sduL = new SimpleStringProperty();
+		private SimpleStringProperty sduR = new SimpleStringProperty();
 		
 		public Patient() {
 		}
@@ -398,6 +409,30 @@ public class TableConfigurer {
 		
 		public SimpleStringProperty ciRProperty() {
 			return ciR;
+		}
+		
+		public String getSduL() {
+			return sduL.get();
+		}
+		
+		public SimpleStringProperty sduLProperty() {
+			return sduL;
+		}
+		
+		public void setSduL(String sduL) {
+			this.sduL.set(sduL);
+		}
+		
+		public String getSduR() {
+			return sduR.get();
+		}
+		
+		public SimpleStringProperty sduRProperty() {
+			return sduR;
+		}
+		
+		public void setSduR(String sduR) {
+			this.sduR.set(sduR);
 		}
 	}
 }

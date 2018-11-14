@@ -258,4 +258,38 @@ public class Actions {
 										(horizontal2.getEndX() - point2.getCenterX()) / (horizontal1.getEndX() - horizontal1.getStartX()) * 100)
 										+ "%"))));
 	}
+	
+	static void calculateSdu() {
+		
+		Circle pointL1 = c.points.get("lp1");
+		Circle pointL5 = c.points.get("lp5");
+		Circle pointL6 = c.points.get("lp6");
+		
+		Circle pointR1 = c.points.get("rp1");
+		Circle pointR5 = c.points.get("rp5");
+		Circle pointR6 = c.points.get("rp6");
+		
+		Line l1l5 = createRegularLine(pointL1, pointL5);
+		Line l5l6 = createRegularLine(pointL5, pointL6);
+		
+		Line r1r5 = createRegularLine(pointR1, pointR5);
+		Line r5r6 = createRegularLine(pointR5, pointR6);
+		
+		calcLeftAngle(pointL1, pointL5, pointL6, 180);
+		calcRightAngle(pointR1, pointR6, pointR5, 180);
+		
+		Stream.of(pointL1, pointL5, pointL6).forEach(point ->
+				point.addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseEvent -> {
+							calcLeftAngle(pointL1, pointL5, pointL6, 180);
+						}
+				));
+		
+		Stream.of(pointR1, pointR5, pointR6).forEach(point ->
+				point.addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseEvent -> {
+							calcRightAngle(pointR1, pointR6, pointR5, 180);
+						}
+				));
+		
+		c.root.getChildren().addAll(l1l5, l5l6, r1r5, r5r6);
+	}
 }

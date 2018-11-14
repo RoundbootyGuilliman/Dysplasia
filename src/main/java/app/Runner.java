@@ -134,7 +134,7 @@ public class Runner extends Application {
 		Button saveButton = new Button("  Сохранить");
 		Button statButton = new Button("  Статистика");
 		
-		List<Button> buttons = Stream.of("АИ", "ОАШВ", "ЦУ", "АУ", "ИМР", "ИК").map(Button::new).collect(Collectors.toList());
+		List<Button> buttons = Stream.of("АИ", "ОАШВ", "ЦУ", "АУ", "ИМР", "ИК", "ШДУ").map(Button::new).collect(Collectors.toList());
 		
 		Button ai = buttons.get(0);
 		buttons.forEach(button -> button.setOnAction(event -> {
@@ -169,6 +169,10 @@ public class Runner extends Application {
 				
 				case "ИК":
 					c.pointsRequired.addAll(Arrays.asList("lp1", "lp2", "lp4", "rp1", "rp2", "rp4"));
+					break;
+				
+				case "ШДУ":
+					c.pointsRequired.addAll(Arrays.asList("lp1", "lp5", "lp6", "rp1", "rp5", "rp6"));
 					break;
 			}
 			clearButton.setDisable(false);
@@ -248,7 +252,7 @@ public class Runner extends Application {
 		
 		TilePane inputTilePane = new TilePane();
 		inputTilePane.setOrientation(Orientation.HORIZONTAL);
-		inputTilePane.setPrefColumns(6);
+		inputTilePane.setPrefColumns(7);
 		inputTilePane.setMaxHeight(40);
 		inputTilePane.setMinHeight(40);
 		
@@ -260,20 +264,20 @@ public class Runner extends Application {
 		
 		statButton.setBackground(back);
 		statButton.addEventFilter(MouseEvent.MOUSE_MOVED, event -> {
-			if (!statOn.get()){
+			if (!statOn.get()) {
 				statButton.setBackground(over);
 				statButton.getScene().setCursor(Cursor.HAND);
 			}
 		});
 		statButton.addEventFilter(MouseEvent.MOUSE_EXITED, event -> {
-			if (!statOn.get()){
+			if (!statOn.get()) {
 				statButton.setBackground(back);
 				statButton.getScene().setCursor(Cursor.DEFAULT);
 			}
 			
 		});
 		statButton.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-			if (!statOn.get()){
+			if (!statOn.get()) {
 				statButton.setBackground(pressed);
 			}
 		});
@@ -318,7 +322,8 @@ public class Runner extends Application {
 					.replace("ЦУ", "Центральный угол")
 					.replace("АУ", "Ацетабулярный угол")
 					.replace("ИМР", "Индекс миграции Реймера")
-					.replace("ИК", "Индекс конгруэнтности")));
+					.replace("ИК", "Индекс конгруэнтности")
+					.replace("ШДУ", "Шеечно-диафизарный угол")));
 			button.setPrefWidth(100);
 			button.setFont(Font.font(20));
 			button.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> button.setBackground(pressed));
@@ -336,8 +341,8 @@ public class Runner extends Application {
 		scene.getStylesheets().add(getClass().getClassLoader().getResource("style.css").toExternalForm());
 		
 		primaryStage.setTitle("Runner nodes");
-		primaryStage.setMinHeight(600);
-		primaryStage.setMinWidth(800);
+		primaryStage.setMinHeight(687);
+		primaryStage.setMinWidth(916);
 		primaryStage.setMaxHeight(screen.getVisualBounds().getMaxY());
 		primaryStage.setMaxWidth(screen.getVisualBounds().getMaxX());
 		primaryStage.setScene(scene);
@@ -445,13 +450,22 @@ public class Runner extends Application {
 			update();
 		});
 		
-		hasText.bind(nameField.textProperty().isNotEmpty().and(lastNameField.textProperty().isNotEmpty()).and(ageField.textProperty().isNotEmpty()));
+		hasText.bind(nameField.textProperty().isNotEmpty()
+				.and(lastNameField.textProperty().isNotEmpty())
+				.and(ageField.textProperty().isNotEmpty()));
 		
 		saveButton.setOnAction(e -> {
 			changed.set(false);
 			String key = nameField.getText() + "SPC" + lastNameField.getText() + ";" + ageField.getText() + ";"
 					+ gender.getValue().replace("Муж.", "M").replace("Жен.", "F")
-					+ ";" + mode.get();
+					+ ";" + mode.get()
+					.replace("АИ", "AI")
+					.replace("ОАШВ", "ADR")
+					.replace("ЦУ", "CEA")
+					.replace("АУ", "AA")
+					.replace("ИМР", "RI")
+					.replace("ИК", "CI")
+					.replace("ШДУ", "SDU");
 			
 			Props.set(key + "L", c.textL.getText().replaceAll("[^.0123456789]", ""));
 			Props.set(key + "R", c.textR.getText().replaceAll("[^.0123456789]", ""));
@@ -478,6 +492,7 @@ public class Runner extends Application {
 		configureImage(initialFile, background);
 		ai.fire();
 		update();
+		System.out.println(primaryStage.getWidth());
 	}
 	
 	private void update() {
@@ -493,7 +508,12 @@ public class Runner extends Application {
 					.replace("lp3", "левую точку Хильгенрейнера")
 					.replace("rp3", "правую точку Хильгенрейнера")
 					.replace("lp4", "нижний край левой слезы Келера")
-					.replace("rp4", "нижний край правой слезы Келера"));
+					.replace("rp4", "нижний край правой слезы Келера")
+					.replace("lp5", "пересечение левой головки и бедренной кости")
+					.replace("rp5", "пересечение правой головки и бедренной кости")
+					.replace("lp6", "нижний край левой бедренной кости")
+					.replace("rp6", "нижний край правой бедренной кости"));
+			
 		} else {
 			c.textC.setText("");
 		}
@@ -550,6 +570,11 @@ public class Runner extends Application {
 			
 			case "ИК":
 				calculateCi();
+				
+				break;
+				
+			case "ШДУ":
+				calculateSdu();
 				
 				break;
 		}
