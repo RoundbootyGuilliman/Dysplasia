@@ -4,8 +4,10 @@ import javafx.application.Application;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -44,7 +46,7 @@ public class Runner extends Application {
 	private Background over = new Background(new BackgroundFill(Color.rgb(35, 46, 60), null, null));
 	private Background pressed = new Background(new BackgroundFill(Color.rgb(43, 82, 120), null, null));
 	private Background textField = new Background(new BackgroundFill(Color.rgb(36, 47, 61), null, null));
-	private StringProperty mode = new SimpleStringProperty(this, "mode", "АИ");
+	private StringProperty mode = new SimpleStringProperty(this, "mode", "null");
 	private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
 	private SimpleBooleanProperty hasText = new SimpleBooleanProperty(false);
 	private SimpleBooleanProperty statOn = new SimpleBooleanProperty(false);
@@ -71,8 +73,7 @@ public class Runner extends Application {
 			image.fitHeightProperty().bind(background.prefHeightProperty());
 			image.fitWidthProperty().bind(background.prefWidthProperty());
 			
-			c.xray = image;
-			image.layoutBoundsProperty().addListener((obs, oldValue, newValue) -> {
+			ChangeListener<? super Bounds> listener = (obs, oldValue, newValue) -> {
 				c.ctx.setPrefHeight(newValue.getHeight());
 				c.ctx.setPrefWidth(newValue.getWidth());
 				c.points.forEach((key, value) -> {
@@ -83,7 +84,14 @@ public class Runner extends Application {
 					value.setCenterX(value.getCenterX() + widthAddition);
 					value.setCenterY(value.getCenterY() + heightAddition);
 				});
-			});
+			};
+			
+			image.layoutBoundsProperty().addListener(listener);
+			
+			if (c.xray != null) {
+				c.xray.layoutBoundsProperty().removeListener(listener);
+			}
+			c.xray = image;
 		}
 		update();
 	}
@@ -95,10 +103,13 @@ public class Runner extends Application {
 		configureFileChooser(fileChooser);
 		
 		Button openButton = new Button("  Загрузить снимок...");
+		
 		Button clearButton = new Button("  Очистить");
+		clearButton.setDisable(true);
 		c.clearButton = clearButton;
 		Button saveButton = new Button("  Сохранить");
 		Button statButton = new Button("  Статистика");
+		openButton.disableProperty().bind(statOn);
 		
 		Stream.of(openButton, clearButton, saveButton, statButton).forEach(button -> {
 			button.setShape(new Rectangle(50, 40, Color.DARKBLUE));
@@ -211,7 +222,9 @@ public class Runner extends Application {
 		
 		openButton.setOnAction(e -> {
 			File file = fileChooser.showOpenDialog(c.primaryStage);
-			clear();
+			if (!mode.get().equals("null")){
+				clear();
+			}
 			configureImage(file, c.background);
 		});
 		
@@ -357,7 +370,7 @@ public class Runner extends Application {
 		
 		contextRoot.setOnMouseReleased(event -> {
 			
-			if (c.xray != null) {
+			if (c.xray != null && !mode.get().equals("null")) {
 				for (int i = 0; i < c.pointsRequired.size(); i++) {
 					
 					String req = c.pointsRequired.get(i);
@@ -405,12 +418,7 @@ public class Runner extends Application {
 		primaryStage.setMaxHeight(screen.getVisualBounds().getMaxY());
 		primaryStage.setMaxWidth(screen.getVisualBounds().getMaxX());
 		primaryStage.setScene(scene);
-
-//		Stream.of(primaryStage.widthProperty(), primaryStage.heightProperty()).forEach(readOnlyDoubleProperty ->
-//				readOnlyDoubleProperty.addListener((observable, oldValue, newValue) -> {
-//					System.out.println("CTX " + c.ctx.getWidth());
-//					System.out.println("IMG " + c.xray.getLayoutBounds().getWidth());
-//		}));
+		
 		
 		// ui pane
 		
@@ -489,8 +497,8 @@ public class Runner extends Application {
 		// another root
 		
 		BorderPane anotherRoot = new BorderPane();
-		anotherRoot.setTop(buttonsPane);
 		anotherRoot.setCenter(background);
+		anotherRoot.setTop(buttonsPane);
 		anotherRoot.setBottom(hintPane);
 		c.anotherRoot = anotherRoot;
 		
@@ -498,21 +506,22 @@ public class Runner extends Application {
 		
 		root.setLeft(uiPane);
 		root.setCenter(anotherRoot);
-
-
-//		File initialFile = new File(System.getProperty("user.home") + "/Desktop/5230e6e4807b8f13fce73b2b7d542f.jpg");
-//		configureImage(initialFile, background);
+		
 		
 		primaryStage.show();
 		
-		((Button) buttonsPane.getChildren().get(0)).fire();
+//		File initialFile = new File(System.getProperty("user.home") + "/Desktop/5230e6e4807b8f13fce73b2b7d542f.jpg");
+//
+//		configureImage(initialFile, background);
 		update();
 	}
 	
 	private void update() {
 		
 		if (c.xray == null) {
-			c.textC.setText("Upload an X-Ray");
+			c.textC.setText("Загрузите снимок");
+		} else if(mode.get().equals("null")) {
+			c.textC.setText("Выберите режим");
 		} else if (!c.pointsDrawn.get()) {
 			c.textC.setText("Отметьте " + c.currentPoint
 					.replace("lp1", "середину головки левого сустава")
@@ -540,10 +549,6 @@ public class Runner extends Application {
 			c.centerRoot.getChildren().addAll(c.xray, c.ctx);
 			c.background.getChildren().clear();
 			c.background.getChildren().addAll(c.centerRoot);
-			c.anotherRoot.setTop(c.buttonsPane);
-			c.anotherRoot.setBottom(c.hintPane);
-			c.anotherRoot.setCenter(c.background);
-			
 		}
 		c.root.getChildren().clear();
 		c.root.setCenter(c.anotherRoot);
