@@ -50,6 +50,8 @@ public class Runner extends Application {
 	private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
 	private SimpleBooleanProperty hasText = new SimpleBooleanProperty(false);
 	private SimpleBooleanProperty statOn = new SimpleBooleanProperty(false);
+	private SimpleBooleanProperty pointsDrawn = new SimpleBooleanProperty(false);
+	private SimpleBooleanProperty anyPointsDrawn = new SimpleBooleanProperty(false);
 	
 	public static void main(String args[]) {
 		launch(args);
@@ -67,6 +69,9 @@ public class Runner extends Application {
 	
 	private void configureImage(File file, HBox background) {
 		if (file != null) {
+			if (!mode.get().equals("null")){
+				clear();
+			}
 			Image img = new Image(file.toURI().toString());
 			ImageView image = new ImageView(img);
 			image.setPreserveRatio(true);
@@ -103,13 +108,14 @@ public class Runner extends Application {
 		configureFileChooser(fileChooser);
 		
 		Button openButton = new Button("  Загрузить снимок...");
-		
+		openButton.disableProperty().bind(statOn);
 		Button clearButton = new Button("  Очистить");
-		clearButton.setDisable(true);
+		clearButton.disableProperty().bind(anyPointsDrawn.not().or(statOn));
 		c.clearButton = clearButton;
 		Button saveButton = new Button("  Сохранить");
 		Button statButton = new Button("  Статистика");
-		openButton.disableProperty().bind(statOn);
+		
+		
 		
 		Stream.of(openButton, clearButton, saveButton, statButton).forEach(button -> {
 			button.setShape(new Rectangle(50, 40, Color.DARKBLUE));
@@ -222,9 +228,6 @@ public class Runner extends Application {
 		
 		openButton.setOnAction(e -> {
 			File file = fileChooser.showOpenDialog(c.primaryStage);
-			if (!mode.get().equals("null")){
-				clear();
-			}
 			configureImage(file, c.background);
 		});
 		
@@ -248,13 +251,14 @@ public class Runner extends Application {
 			update();
 		});
 		
-		saveButton.disableProperty().bind((c.pointsDrawn.not()).or(changed.not()).or(hasText.not()));
+		saveButton.disableProperty().bind((pointsDrawn.not()).or(changed.not()).or(hasText.not()));
 		
 		statButton.setOnAction(e -> {
 			if (!statOn.get()) {
+				statOn.set(true);
 				c.table = TableConfigurer.configureTable();
 				c.root.setCenter(c.table);
-				statOn.set(true);
+				
 			} else {
 				statOn.set(false);
 				update();
@@ -376,7 +380,7 @@ public class Runner extends Application {
 					String req = c.pointsRequired.get(i);
 					
 					if (c.points.get(req) == null) {
-						c.clearButton.setDisable(false);
+						anyPointsDrawn.set(true);
 						Circle newPoint = new Circle(event.getX(), event.getY(), 10);
 						
 						makeDraggable(newPoint);
@@ -387,7 +391,7 @@ public class Runner extends Application {
 							c.currentPoint = c.pointsRequired.get(i + 1);
 						} else {
 							calculate();
-							c.pointsDrawn.set(true);
+							pointsDrawn.set(true);
 						}
 						break;
 					}
@@ -522,7 +526,7 @@ public class Runner extends Application {
 			c.textC.setText("Загрузите снимок");
 		} else if(mode.get().equals("null")) {
 			c.textC.setText("Выберите режим");
-		} else if (!c.pointsDrawn.get()) {
+		} else if (!pointsDrawn.get()) {
 			c.textC.setText("Отметьте " + c.currentPoint
 					.replace("lp1", "середину головки левого сустава")
 					.replace("rp1", "середину головки правого сустава")
@@ -564,11 +568,11 @@ public class Runner extends Application {
 	}
 	
 	private void clear() {
-		c.clearButton.setDisable(true);
 		c.ctx = configureContextRoot();
 		c.points.clear();
 		
-		c.pointsDrawn.set(false);
+		pointsDrawn.set(false);
+		anyPointsDrawn.set(false);
 		
 		c.currentPoint = c.pointsRequired.get(0);
 		

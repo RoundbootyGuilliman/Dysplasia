@@ -293,7 +293,6 @@ class Utils {
 		VBox table;
 		
 		String currentPoint = "lp1";
-		SimpleBooleanProperty pointsDrawn = new SimpleBooleanProperty(false);
 	}
 	
 	static final class Shapes {
